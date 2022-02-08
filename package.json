@@ -4,7 +4,7 @@
   "description": "Cache Cargo dependencies and build outputs",
   "main": "index.js",
   "scripts": {
-    "dist": "rm -rf dist && ncc build --license licenses.txt && ncc build -o dist/restore restore.js && ncc build -o dist/save save.js",
+    "dist": "rm -rf dist && ncc build -s --license licenses.txt && ncc build -s -o dist/restore restore.js && ncc build -s -o dist/save save.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

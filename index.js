@@ -2,43 +2,29 @@ const core = require("@actions/core");
 const { createHook } = require("async_hooks");
 const { hashFiles } = require("@actions/glob");
 
-class AsyncListener {
-  promises = {};
-
-  hook = createHook({
+async function withAwait(init, run) {
+  const promises = {};
+  const hook = createHook({
     init: (asyncId, type, triggerAsyncId, resource) => {
-      this.promises[asyncId] = resource;
+      promises[asyncId] = resource;
     },
     after: (asyncId) => {
-      delete this.promises[asyncId];
+      delete promises[asyncId];
     },
   });
 
-  constructor() {
-    this.hook.enable();
-  }
+  hook.enable();
+  let context = await Promise.resolve(init());
+  hook.disable();
 
-  async join() {
-    if (this.hook == null) {
-      return false;
-    }
-
-    this.hook.disable();
-    this.hook = null;
-
-    let joined = false;
-    for (const promise of Object.values(this.promises)) {
-      await promise;
-      joined = true;
-    }
-
-    this.promises = {};
-
-    return joined;
-  }
+  const results = await Promise.all(Object.values(promises));
+  return await Promise.resolve(run(results.length, context));
 }
 
-async function init() {
+async function withCacheArgs(fn) {
+  const env = process.env;
+  process.env = Object.create(env);
+
   const TAG = core.getInput("tag");
 
   const CARGO_HOME = process.env.CARGO_HOME ?? "~/.cargo";
@@ -65,24 +51,36 @@ async function init() {
     `${PREFIX}-cargo-${TAG}-`,
     `${PREFIX}-cargo-`,
   ].join("\n");
+
+  const result = await Promise.resolve(fn());
+
+  process.env = env;
+
+  return result;
 }
 
 module.exports.restore = async function restore() {
-  await init();
-
-  const listener = new AsyncListener();
-  const restore = require("cache/dist/restore/index.js");
-  if (!(await listener.join())) {
-    await restore();
-  }
+  await withCacheArgs(async () => {
+    await withAwait(
+      () => require("cache/dist/restore/index.js"),
+      async (n, restore) => {
+        if (n === 0) {
+          await restore();
+        }
+      }
+    );
+  });
 };
 
 module.exports.save = async function save() {
-  await init();
-
-  const listener = new AsyncListener();
-  const save = require("cache/dist/save/index.js");
-  if (!(await listener.join())) {
-    await save();
-  }
+  await withCacheArgs(async () => {
+    await withAwait(
+      () => require("cache/dist/save/index.js"),
+      async (n, save) => {
+        if (n === 0) {
+          await save();
+        }
+      }
+    );
+  });
 };
