@@ -60,20 +60,22 @@ async function withCacheArgs(fn) {
 }
 
 module.exports.restore = async function restore() {
-  await withCacheArgs(async () => {
-    await withAwait(
-      () => require("cache/dist/restore/index.js"),
-      async (n, restore) => {
-        if (n === 0) {
-          await restore();
+  core.group("Run actions/cache@v2", async () => {
+    await withCacheArgs(async () => {
+      await withAwait(
+        () => require("cache/dist/restore/index.js"),
+        async (n, restore) => {
+          if (n === 0) {
+            await restore();
+          }
         }
-      }
-    );
+      );
+    });
   });
 };
 
 module.exports.save = async function save() {
-  await withCacheArgs(async () => {
+  core.group("actions/cache@v2", async () => {
     await withAwait(
       () => require("cache/dist/save/index.js"),
       async (n, save) => {
