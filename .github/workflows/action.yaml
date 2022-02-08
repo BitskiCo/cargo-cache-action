@@ -6,11 +6,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Install minimal stable
+      - name: Install Rust toolkit
         uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
+          profile: minimal
 
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -19,3 +19,22 @@ jobs:
         uses: ./
         with:
           tag: test
+          path: dist
+
+  test_uncached:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rust toolkit
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Cache Cargo dependencies and build outputs
+        uses: ./
+        with:
+          tag: uncached-${{ github.sha }}
+          path: dist

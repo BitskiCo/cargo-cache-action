@@ -1,6 +1,6 @@
 {
   "name": "cargo-cache-action",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Cache Cargo dependencies and build outputs",
   "main": "index.js",
   "scripts": {

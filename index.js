@@ -38,6 +38,7 @@ async function withEnv(fn) {
 
 async function withCacheArgs(fn) {
   return await withEnv(async () => {
+    const PATH = core.getMultilineInput("path");
     const TAG = core.getInput("tag");
 
     const CARGO_HOME = process.env.CARGO_HOME ?? "~/.cargo";
@@ -50,13 +51,15 @@ async function withCacheArgs(fn) {
       ["rust-toolchain.toml", "**/Cargo.lock"].join("\n")
     );
 
-    process.env.INPUT_PATH = [
-      `${CARGO_HOME}/bin`,
-      `${CARGO_HOME}/registry/cache`,
-      `${CARGO_HOME}/registry/index`,
-      `${CARGO_HOME}/git/db`,
-      `${CARGO_TARGET_DIR}`,
-    ].join("\n");
+    process.env.INPUT_PATH = PATH.concat(
+      [
+        `${CARGO_HOME}/bin`,
+        `${CARGO_HOME}/registry/cache`,
+        `${CARGO_HOME}/registry/index`,
+        `${CARGO_HOME}/git/db`,
+        `${CARGO_TARGET_DIR}`,
+      ].filter((path) => PATH.indexOf(path) < 0)
+    ).join("\n");
 
     process.env.INPUT_KEY = `${PREFIX}-${HASH}-${TAG}`;
 
