@@ -1,0 +1,15 @@
+name: Action
+
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache Cargo dependencies and build outputs
+        uses: BitskiCo/cargo-cache-action@feature/implement
+        with:
+          tag: test
