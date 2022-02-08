@@ -4,7 +4,7 @@
   "description": "Cache Cargo dependencies and build outputs",
   "main": "index.js",
   "scripts": {
-    "dist": "rm -rf dist && ncc build -s --license licenses.txt && ncc build -s -o dist/restore restore.js && ncc build -s -o dist/save save.js",
+    "dist": "rm -rf dist && ncc build -s --license licenses.txt && ncc build -s -o dist/run run.js && ncc build -s -o dist/post post.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -25,7 +25,9 @@
   "homepage": "https://github.com/BitskiCo/cargo-cache-action",
   "dependencies": {
     "@actions/core": "^1.6.0",
+    "@actions/exec": "^1.1.0",
     "@actions/glob": "^0.2.0",
+    "@actions/io": "^1.1.1",
     "cache": "github:actions/cache#v2"
   },
   "devDependencies": {

@@ -18,6 +18,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Cache Cargo dependencies and build outputs
-        uses: BitskiCo/cargo-cache-action@main
+        uses: ./
         with:
           tag: test

@@ -13,6 +13,6 @@ outputs:
     description: 'A boolean value to indicate an exact match was found for the primary key'
 runs:
   using: node16
-  main: dist/restore/index.js
-  post: dist/save/index.js
+  main: dist/run/index.js
+  post: dist/post/index.js
   post-if: success()
