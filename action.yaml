@@ -10,7 +10,7 @@ inputs:
     required: false
 outputs:
   cache-hit:
-    description: 'A boolean value to indicate an exact match was found for the primary key'
+    description: "A boolean value to indicate an exact match was found for the primary key"
 runs:
   using: node16
   main: dist/run/index.js
