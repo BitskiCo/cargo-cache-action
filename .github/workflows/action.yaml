@@ -1,0 +1,23 @@
+name: Action
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install minimal stable
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Cache Cargo dependencies and build outputs
+        uses: BitskiCo/cargo-cache-action@main
+        with:
+          tag: test

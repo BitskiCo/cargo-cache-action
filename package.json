@@ -1,0 +1,34 @@
+{
+  "name": "cargo-cache-action",
+  "version": "1.0.0",
+  "description": "Cache Cargo dependencies and build outputs",
+  "main": "index.js",
+  "scripts": {
+    "dist": "rm -rf dist && ncc build --license licenses.txt && ncc build -o dist/restore restore.js && ncc build -o dist/save save.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BitskiCo/cargo-cache-action.git"
+  },
+  "keywords": [
+    "actions",
+    "node",
+    "cache",
+    "cargo"
+  ],
+  "author": "Bitski",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BitskiCo/cargo-cache-action/issues"
+  },
+  "homepage": "https://github.com/BitskiCo/cargo-cache-action",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/glob": "^0.2.0",
+    "cache": "github:actions/cache#v2"
+  },
+  "devDependencies": {
+    "ncc": "^0.3.6"
+  }
+}
