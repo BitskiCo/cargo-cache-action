@@ -45,8 +45,8 @@ async function withCacheArgs(fn) {
     const RUNNER_OS = process.env.RUNNER_OS;
     const RUNNER_ARCH = process.env.RUNNER_ARCH;
 
-    const PREFIX = `${RUNNER_OS}-${RUNNER_ARCH}`;
-    const SUFFIX = await hashFiles(
+    const PREFIX = `${RUNNER_OS}-${RUNNER_ARCH}-cargo`;
+    const HASH = await hashFiles(
       ["rust-toolchain.toml", "**/Cargo.lock"].join("\n")
     );
 
@@ -58,11 +58,11 @@ async function withCacheArgs(fn) {
       `${CARGO_TARGET_DIR}`,
     ].join("\n");
 
-    process.env.INPUT_KEY = `${PREFIX}-cargo-${TAG}-${SUFFIX}`;
+    process.env.INPUT_KEY = `${PREFIX}-${HASH}-${TAG}`;
 
     process.env["INPUT_RESTORE-KEYS"] = [
-      `${PREFIX}-cargo-${TAG}-`,
-      `${PREFIX}-cargo-`,
+      `${PREFIX}-${HASH}-`,
+      `${PREFIX}-`,
     ].join("\n");
 
     return await Promise.resolve(fn());
