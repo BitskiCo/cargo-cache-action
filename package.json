@@ -4,7 +4,7 @@
   "description": "Cache Cargo dependencies and build outputs",
   "main": "index.js",
   "scripts": {
-    "dist": "ncc build --license licenses.txt",
+    "dist": "ncc build --license licenses.txt src && sed -i '' -e 's/^run();$//g' dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

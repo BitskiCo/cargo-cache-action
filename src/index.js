@@ -6,27 +6,10 @@ const core = require("@actions/core");
 const exec = require("@actions/exec");
 const io = require("@actions/io");
 
-const { createHook } = require("async_hooks");
 const { hashFiles } = require("@actions/glob");
 
-async function withAwait(init, run) {
-  const promises = {};
-  const hook = createHook({
-    init: (asyncId, type, triggerAsyncId, resource) => {
-      promises[asyncId] = resource;
-    },
-    after: (asyncId) => {
-      delete promises[asyncId];
-    },
-  });
-
-  hook.enable();
-  let context = await Promise.resolve(init());
-  hook.disable();
-
-  const results = await Promise.all(Object.values(promises));
-  return await Promise.resolve(run(results.length, context));
-}
+const restore = require("cache/dist/restore/index.js").default;
+const save = require("cache/dist/save/index.js").default;
 
 async function withEnv(fn) {
   const env = process.env;
@@ -85,14 +68,7 @@ function isCacheHit() {
 module.exports.run = async function run() {
   await core.group("Run actions/cache@v2", async () => {
     await withCacheArgs(async () => {
-      await withAwait(
-        () => require("cache/dist/restore/index.js"),
-        async (n, restore) => {
-          if (n === 0) {
-            await restore();
-          }
-        }
-      );
+      await restore();
     });
   });
 };
@@ -119,14 +95,7 @@ module.exports.runPost = async function runPost() {
 
   await core.group("actions/cache@v2", async () => {
     await withCacheArgs(async () => {
-      await withAwait(
-        () => require("cache/dist/save/index.js"),
-        async (n, save) => {
-          if (n === 0) {
-            await save();
-          }
-        }
-      );
+      await save();
     });
   });
 };
