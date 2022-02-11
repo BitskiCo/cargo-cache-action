@@ -19,12 +19,16 @@ async function withEnv(fn) {
   return result;
 }
 
-async function withCacheArgs(fn, useSccache) {
+async function withCacheArgs(fn) {
   return await withEnv(async () => {
     const PATH = core.getMultilineInput("path");
     const TAG = core.getInput("tag");
 
     const CARGO_HOME = process.env.CARGO_HOME ?? "~/.cargo";
+    const CARGO_TARGET_DIR =
+      process.env.CARGO_TARGET_DIR ??
+      path.join(process.env.GITHUB_WORKSPACE, "target");
+
     const RUNNER_OS = process.env.RUNNER_OS;
     const RUNNER_ARCH = process.env.RUNNER_ARCH;
 
@@ -38,14 +42,8 @@ async function withCacheArgs(fn, useSccache) {
       `${CARGO_HOME}/registry/cache`,
       `${CARGO_HOME}/registry/index`,
       `${CARGO_HOME}/git/db`,
+      CARGO_TARGET_DIR,
     ];
-
-    if (!useSccache) {
-      const CARGO_TARGET_DIR =
-        process.env.CARGO_TARGET_DIR ??
-        path.join(process.env.GITHUB_WORKSPACE, "target");
-      inputs.push(CARGO_TARGET_DIR);
-    }
 
     process.env.INPUT_PATH = PATH.concat(
       inputs.filter((path) => PATH.indexOf(path) < 0)
@@ -83,10 +81,8 @@ async function isSccacheConfigured() {
 }
 
 module.exports.run = async function run() {
-  const useSccache = isSccacheConfigured();
-
   await core.group("sccache", async () => {
-    if (useSccache) {
+    if (isSccacheConfigured()) {
       core.info("Starting sccache server");
       await exec.exec("sccache", ["--show-stats"]);
     } else {
@@ -97,7 +93,7 @@ module.exports.run = async function run() {
   await core.group("actions/cache@v2", async () => {
     await withCacheArgs(async () => {
       await restore();
-    }, useSccache);
+    });
   });
 };
 
