@@ -75,14 +75,19 @@ function isCacheHit() {
 
 async function isSccacheConfigured() {
   return (
+    core.getInput("sccache") &&
     process.env.RUSTC_WRAPPER?.indexOf("sccache") >= 0 &&
     (await io.which("sccache"))
   );
 }
 
+function isCargoCacheConfigured() {
+  return !!core.getInput("cargo-cache");
+}
+
 module.exports.run = async function run() {
   await core.group("sccache", async () => {
-    if (isSccacheConfigured()) {
+    if (await isSccacheConfigured()) {
       core.info("Starting sccache server");
       await exec.exec("sccache", ["--show-stats"]);
     } else {
@@ -99,6 +104,10 @@ module.exports.run = async function run() {
 
 module.exports.runPost = async function runPost() {
   await core.group("cargo-cache", async () => {
+    if (!isCargoCacheConfigured()) {
+      core.info("cargo-cache not enabled");
+      return;
+    }
     if (isCacheHit()) {
       core.info("Cache hit, not cleaning cache");
       return;
@@ -118,7 +127,7 @@ module.exports.runPost = async function runPost() {
   });
 
   await core.group("sccache", async () => {
-    if (isSccacheConfigured()) {
+    if (await isSccacheConfigured()) {
       core.info("Stopping sccache server");
       await exec.exec("sccache", ["--stop-server"]);
     } else {
