@@ -73,16 +73,15 @@ function isCacheHit() {
   );
 }
 
+function isCargoCacheConfigured() {
+  return core.getInput("cargo-cache") === "true";
+}
 async function isSccacheConfigured() {
   return (
-    core.getInput("sccache") &&
+    core.getInput("sccache") === "true" &&
     process.env.RUSTC_WRAPPER?.indexOf("sccache") >= 0 &&
     (await io.which("sccache"))
   );
-}
-
-function isCargoCacheConfigured() {
-  return !!core.getInput("cargo-cache");
 }
 
 module.exports.run = async function run() {
